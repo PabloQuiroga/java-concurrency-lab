@@ -11,10 +11,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 class PriceStoreTest {
     private PriceStore store;
+    private OrderExecutor executor;
 
     @BeforeEach
     void setUp() {
         store = new PriceStore();
+        executor = new OrderExecutor();
     }
 
     @Test
@@ -39,7 +41,7 @@ class PriceStoreTest {
         // 1. Necesitamos una cola y un motor para verificar que el precio llega al store
         EventQueue queue = new EventQueue(10);
         PriceStore store = new PriceStore();
-        TradingEngine engine = new TradingEngine(queue, store);
+        TradingEngine engine = new TradingEngine(queue, store, executor);
 
         // Lanzamos el motor en un hilo separado para que procese la cola
         Thread engineThread = new Thread(engine);

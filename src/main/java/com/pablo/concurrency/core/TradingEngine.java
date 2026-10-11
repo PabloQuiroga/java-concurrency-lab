@@ -5,12 +5,14 @@ import java.util.concurrent.atomic.AtomicLong;
 public class TradingEngine implements Runnable {
     private final EventQueue eventQueue;
     private final PriceStore priceStore;
+    private final OrderExecutor orderExecutor;
     private volatile boolean running = true;
     private final AtomicLong ordersExecuted = new AtomicLong(0);
 
-    public TradingEngine(EventQueue queue, PriceStore store) {
+    public TradingEngine(EventQueue queue, PriceStore store, OrderExecutor executor) {
         this.eventQueue = queue;
         this.priceStore = store;
+        this.orderExecutor = executor;
     }
 
     public void stop() {
@@ -42,8 +44,9 @@ public class TradingEngine implements Runnable {
 
     private void executeOrder(PriceUpdate update) {
         ordersExecuted.incrementAndGet();
-        System.out.printf("[ORDER] Executed BUY for %s at %.2f\n",
-                update.asset(), update.price());
+//        System.out.printf("[ORDER] Executed BUY for %s at %.2f\n",
+//                update.asset(), update.price());
+        orderExecutor.execute(update);
     }
 
     public long getOrdersExecuted() {

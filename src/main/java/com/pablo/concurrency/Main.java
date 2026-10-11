@@ -9,7 +9,8 @@ public class Main {
         // 1. Creamos la infraestructura base
         PriceStore store = new PriceStore();
         EventQueue queue = new EventQueue(100); // Cola con capacidad de 100
-        TradingEngine engine = new TradingEngine(queue, store);
+        OrderExecutor orderExecutor = new OrderExecutor();
+        TradingEngine engine = new TradingEngine(queue, store, orderExecutor);
 
         // 2. Lanzamos el Motor de Decisiones en su propio hilo
         Thread engineThread = new Thread(engine);
@@ -34,6 +35,7 @@ public class Main {
         System.out.println("Stopping simulation...");
         // Apagado ordenado
         executor.shutdownNow();
+        orderExecutor.shutdown();
         // Forzamos la parada del motor
         engine.stop();
 

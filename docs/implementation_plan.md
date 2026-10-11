@@ -23,8 +23,10 @@
     - *Justificación*: Permite lecturas y escrituras concurrentes sin bloquear la tabla completa.
 - **Procesamiento Asíncrono**: Uso de `CompletableFuture` para disparar las órdenes de ejecución sin bloquear el procesamiento del siguiente precio.
 
-### 2.4 Ejecutor de Órdenes
-- **`OrderExecutor`**: Un componente que procesa las órdenes generadas y las registra en un log de auditoría.
+### 2.4 Ejecutor de Órdenes Asíncrono
+- **`OrderExecutor`**: Implementará la ejecución de órdenes utilizando `CompletableFuture.runAsync()`.
+- **Flujo No Bloqueante**: El `TradingEngine` disparará la ejecución de la orden sin esperar la respuesta, permitiendo que el motor continúe procesando el flujo de precios sin latencia.
+- **Manejo de Errores Asíncronos**: Uso de `.exceptionally()` para capturar y registrar fallos en la ejecución de la orden sin afectar al hilo del motor.
 
 ## 3. Estrategia de Sincronización y Seguridad
 - **Atómicos**: Uso de `AtomicLong` para contar el número total de órdenes ejecutadas sin necesidad de mutexes costosos.

@@ -12,12 +12,14 @@ class TradingEngineTest {
     private PriceStore store;
     private EventQueue queue;
     private TradingEngine engine;
+    private OrderExecutor executor;
 
     @BeforeEach
     void setUp() {
         store = new PriceStore();
         queue = new EventQueue(100);
-        engine = new TradingEngine(queue, store);
+        executor = new OrderExecutor();
+        engine = new TradingEngine(queue, store, executor);
     }
 
     @Test
