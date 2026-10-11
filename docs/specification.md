@@ -35,3 +35,8 @@ El sistema se considera exitoso si:
 2. Ejecuta órdenes correctamente basadas en las reglas definidas.
 3. Mantiene la consistencia de los precios incluso bajo una carga masiva de actualizaciones.
 4. Demuestra una gestión eficiente de la memoria y la CPU.
+
+## 5. Resiliencia y Observabilidad
+- **Mecanismo de Protección**: El sistema debe implementar un patrón de *Circuit Breaker* para suspender la ejecución de órdenes si se detecta un fallo crítico recurrente en el ejecutor.
+- **Medición de Latencia**: El sistema debe calcular y registrar la latencia total desde la creación del evento hasta su ejecución final.
+- **Recuperación Automática**: El sistema debe ser capaz de reiniciar la ejecución de órdenes automáticamente tras un periodo de enfriamiento (*cooldown*) después de un fallo.

@@ -23,10 +23,11 @@
     - *Justificación*: Permite lecturas y escrituras concurrentes sin bloquear la tabla completa.
 - **Procesamiento Asíncrono**: Uso de `CompletableFuture` para disparar las órdenes de ejecución sin bloquear el procesamiento del siguiente precio.
 
-### 2.4 Ejecutor de Órdenes Asíncrono
-- **`OrderExecutor`**: Implementará la ejecución de órdenes utilizando `CompletableFuture.runAsync()`.
-- **Flujo No Bloqueante**: El `TradingEngine` disparará la ejecución de la orden sin esperar la respuesta, permitiendo que el motor continúe procesando el flujo de precios sin latencia.
-- **Manejo de Errores Asíncronos**: Uso de `.exceptionally()` para capturar y registrar fallos en la ejecución de la orden sin afectar al hilo del motor.
+### 2.4 Ejecutor de Órdenes Resiliente
+- **`OrderExecutor`**: Implementa un pipeline asíncrono mediante `CompletableFuture.runAsync()`.
+- **Patrón Circuit Breaker**: Incluye un contador de errores (`AtomicInteger`). Si se alcanza el umbral de fallos, el sistema entra en modo de recuperación, bloqueando temporalmente nuevas órdenes para evitar la saturación del sistema.
+- **Métricas de Latencia**: Cálculo de la diferencia temporal entre el `timestamp` del evento y la ejecución final utilizando `java.time.Duration`.
+- **Manejo de Errores Asíncronos**: Uso de `.exceptionally()` para capturar y registrar fallos en la ejecución de la orden sin afectar la estabilidad del hilo del motor.
 
 ## 3. Estrategia de Sincronización y Seguridad
 - **Atómicos**: Uso de `AtomicLong` para contar el número total de órdenes ejecutadas sin necesidad de mutexes costosos.
