@@ -34,6 +34,7 @@ public class Main {
 
         System.out.println("Stopping simulation...");
         // Apagado ordenado
+        queue.enqueue(PriceUpdate.SHUTDOWN_SIGNAL);
         executor.shutdownNow();
         orderExecutor.shutdown();
         // Forzamos la parada del motor
