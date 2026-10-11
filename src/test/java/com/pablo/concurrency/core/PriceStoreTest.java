@@ -36,27 +36,41 @@ class PriceStoreTest {
 
     @Test
     void testPriceFeedNotifiesConsumer() throws InterruptedException {
-        // Usamos un CountDownLatch para sincronizar el hilo del test con el hilo del PriceFeed
-        CountDownLatch latch = new CountDownLatch(1);
-        AtomicBoolean notified = new AtomicBoolean(false);
+        // 1. Necesitamos una cola y un motor para verificar que el precio llega al store
+        EventQueue queue = new EventQueue(10);
+        PriceStore store = new PriceStore();
+        TradingEngine engine = new TradingEngine(queue, store);
 
-        // Creamos un feed que, al recibir un precio, marca la variable 'notified' y libera el latch
-        PriceFeed feed = new PriceFeed("BTC/USD", update -> {
-            notified.set(true);
-            latch.countDown();
-        });
+        // Lanzamos el motor en un hilo separado para que procese la cola
+        Thread engineThread = new Thread(engine);
+        engineThread.start();
+
+        // 2. Creamos el feed pasándole la COLA (no el callback)
+        PriceFeed feed = new PriceFeed("BTC/USD", queue);
 
         // Lanzamos el feed en un hilo separado
-        Thread thread = new Thread(feed);
-        thread.start();
+        Thread feedThread = new Thread(feed);
+        feedThread.start();
 
-        // Esperamos hasta 2 segundos a que el feed envíe la primera actualización
-        boolean success = latch.await(2, TimeUnit.SECONDS);
+        // 3. Esperamos a que el precio llegue al store
+        // En lugar de un latch, consultamos el store hasta que el precio no sea nulo
+        boolean success = false;
+        for (int i = 0; i < 20; i++) { // Intentamos durante 2 segundos
+            if (store.getPrice("BTC/USD").isPresent()) {
+                success = true;
+                break;
+            }
+            Thread.sleep(100);
+        }
 
+        queue.enqueue(PriceUpdate.SHUTDOWN_SIGNAL);
+
+        // Limpieza
         feed.stop();
-        thread.join();
+        //engine.stop();
+        feedThread.join();
+        engineThread.join();
 
-        assertTrue(success, "El PriceFeed debería haber notificado al consumidor");
-        assertTrue(notified.get(), "La variable notified debería ser true");
+        assertTrue(success, "El PriceFeed debería haber enviado la actualización a través de la cola al PriceStore");
     }
 }
